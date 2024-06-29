@@ -1,7 +1,7 @@
 import { JWTPayload } from "jose";
 
 export interface Semester {
-  id: string;
+  _id: string;
   startDate: string; // ISO Date string
   term: "spring" | "summer" | "fall";
 }

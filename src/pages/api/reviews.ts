@@ -4,15 +4,15 @@ import type { NextApiRequest, NextApiResponse } from "next";
 // import crypto from "node:crypto";
 import type { Course, Review, Semester } from "src/@types";
 
-// import { sanityClient } from "src/sanity";
+// import { connectToDatabase } from "src/lib/mongodb";
 
 type CreateReviewRequest = {
   rating: NonNullable<Review["rating"]>;
   difficulty: NonNullable<Review["difficulty"]>;
   workload: NonNullable<Review["workload"]>;
   body: Review["body"];
-  courseId: Course["id"];
-  semesterId: Semester["id"];
+  courseId: Course["_id"];
+  semesterId: Semester["_id"];
   username: string;
 };
 
@@ -42,11 +42,7 @@ type CreateReviewRequest = {
 //   authorId: NonNullable<Review["authorId"]>;
 // };
 
-type Payload = CreateReviewRequest & {
-  code: string;
-};
-
-const schema = Joi.object<Payload>({
+const schema = Joi.object<CreateReviewRequest>({
   semesterId: Joi.string().required().label("Semester"),
   courseId: Joi.string().required().label("Course"),
   rating: Joi.number().required().integer().min(1).max(5).label("Rating"),
@@ -60,11 +56,6 @@ const schema = Joi.object<Payload>({
   workload: Joi.number().required().integer().min(1).max(100).label("Workload"),
   body: Joi.string().required().label("Body"),
   username: Joi.string().required().label("Username"),
-  code: Joi.string()
-    .required()
-    .length(6)
-    .label("Code")
-    .messages({ "string.length": "Code must be exactly {#limit} digits" }),
 });
 
 type ResponseData = Record<string, never> | { errors: string[] };
