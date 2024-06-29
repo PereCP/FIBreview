@@ -21,7 +21,7 @@ import { FC, Fragment, useEffect, useMemo, useState } from "react";
 import type { Course, Review } from "src/@types";
 import { Input } from "src/components/input";
 import { Toggle } from "src/components/toggle";
-import { sanityClient } from "src/sanity";
+// import { sanityClient } from "src/sanity";
 import { formatNumber } from "src/util";
 
 type CourseWithReviewsStats = Course & {
@@ -38,22 +38,23 @@ interface HomePageProps {
 }
 
 export const getStaticProps: GetStaticProps<HomePageProps> = async () => {
-  const query = `
-    *[_type == 'course']{
-      ...,
-      "slug": slug.current,
-      "id": _id,
-      "reviews": *[_type == 'review' && references(^._id)]{
-        "id": _id,
-        "created": _createdAt,
-        ...,
-        "body": "",
-        "course": null,
-      }
-    }
-  `;
+  // const query = `
+  //   *[_type == 'course']{
+  //     ...,
+  //     "slug": slug.current,
+  //     "id": _id,
+  //     "reviews": *[_type == 'review' && references(^._id)]{
+  //       "id": _id,
+  //       "created": _createdAt,
+  //       ...,
+  //       "body": "",
+  //       "course": null,
+  //     }
+  //   }
+  // `;
 
-  const apiResponse = await sanityClient.fetch<CourseWithReviewsStats[]>(query);
+  // const apiResponse = await sanityClient.fetch<CourseWithReviewsStats[]>(query);
+  const apiResponse: CourseWithReviewsStats[] = [];
 
   const courses = apiResponse.map(({ reviews, ...rest }) => {
     const course: CourseWithStats = {
@@ -79,7 +80,9 @@ interface PaginationProps {
   pageSize: number;
   pageNumber: number;
   resultCount: number;
+  // eslint-disable-next-line no-unused-vars
   onPageChange: (nextPage: number) => void;
+  // eslint-disable-next-line no-unused-vars
   onPageSizeChange: (nextPageSize: number) => void;
   pageSizes: number[];
 }
@@ -265,6 +268,7 @@ type SortConfig = {
 };
 
 const sortFieldsToLabels: {
+  // eslint-disable-next-line no-unused-vars
   [Property in SortableField]: string;
 } = {
   name: "Name",

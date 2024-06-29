@@ -3,7 +3,8 @@ import Head from "next/head";
 
 import type { Course, Review, Semester } from "src/@types";
 import { Review as ReviewComponent } from "src/components/review";
-import { sanityClient } from "src/sanity";
+
+// import { sanityClient } from "src/sanity";
 
 interface ReviewsPageProps {
   reviews: Array<
@@ -15,20 +16,21 @@ interface ReviewsPageProps {
 }
 
 export const getStaticProps: GetStaticProps<ReviewsPageProps> = async () => {
-  const query = `
-    *[_type == 'review']{
-      "id": _id,
-      "created": _createdAt,
-      ...,
-      semester->,
-      course-> {
-        name,
-        "slug": slug.current
-      }
-    } | order(_createdAt desc)[0...100]
-  `;
+  // const query = `
+  //   *[_type == 'review']{
+  //     "id": _id,
+  //     "created": _createdAt,
+  //     ...,
+  //     semester->,
+  //     course-> {
+  //       name,
+  //       "slug": slug.current
+  //     }
+  //   } | order(_createdAt desc)[0...100]
+  // `;
 
-  const reviews = await sanityClient.fetch<ReviewsPageProps["reviews"]>(query);
+  // const reviews = await sanityClient.fetch<ReviewsPageProps["reviews"]>(query);
+  const reviews: ReviewsPageProps["reviews"] = [];
 
   return { props: { reviews } };
 };

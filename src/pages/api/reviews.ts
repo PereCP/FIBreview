@@ -1,9 +1,10 @@
 import Joi from "joi";
 import type { NextApiRequest, NextApiResponse } from "next";
-import crypto from "node:crypto";
 
+// import crypto from "node:crypto";
 import type { Course, Review, Semester } from "src/@types";
-import { sanityClient } from "src/sanity";
+
+// import { sanityClient } from "src/sanity";
 
 type CreateReviewRequest = {
   rating: NonNullable<Review["rating"]>;
@@ -15,31 +16,31 @@ type CreateReviewRequest = {
   username: string;
 };
 
-const KEY = process.env.ENCRYPTION_KEY;
-const IV = "5183666c72eec9e4";
+// const KEY = process.env.ENCRYPTION_KEY;
+// const IV = "5183666c72eec9e4";
 
-function encrypt(data: string): string {
-  if (!KEY) throw new Error("Encryption key not found!");
+// function encrypt(data: string): string {
+//   if (!KEY) throw new Error("Encryption key not found!");
 
-  const cipher = crypto.createCipheriv(
-    "aes-256-cbc",
-    Buffer.from(KEY, "hex"),
-    IV,
-  );
-  const encrypted = cipher.update(data, "utf8", "base64");
+//   const cipher = crypto.createCipheriv(
+//     "aes-256-cbc",
+//     Buffer.from(KEY, "hex"),
+//     IV,
+//   );
+//   const encrypted = cipher.update(data, "utf8", "base64");
 
-  return encrypted + cipher.final("base64");
-}
+//   return encrypted + cipher.final("base64");
+// }
 
-type CreateReviewSanityRequest = Omit<
-  CreateReviewRequest,
-  "courseId" | "semesterId" | "username"
-> & {
-  course: { _ref: string };
-  semester: { _ref: string };
-} & {
-  authorId: NonNullable<Review["authorId"]>;
-};
+// type CreateReviewSanityRequest = Omit<
+//   CreateReviewRequest,
+//   "courseId" | "semesterId" | "username"
+// > & {
+//   course: { _ref: string };
+//   semester: { _ref: string };
+// } & {
+//   authorId: NonNullable<Review["authorId"]>;
+// };
 
 type Payload = CreateReviewRequest & {
   code: string;
@@ -96,24 +97,24 @@ export default async function handler(
   const { username, code, courseId, semesterId, ...review } =
     validationResult.value;
 
-  const authorId = encrypt(username);
+  // const authorId = encrypt(username);
 
-  const request = {
-    _type: "review",
-    authorId,
-    ...review,
-    course: {
-      _ref: courseId,
-      _type: "reference",
-    },
-    semester: {
-      _ref: semesterId,
-      _type: "reference",
-    },
-  };
+  // const request = {
+  //   _type: "review",
+  //   authorId,
+  //   ...review,
+  //   course: {
+  //     _ref: courseId,
+  //     _type: "reference",
+  //   },
+  //   semester: {
+  //     _ref: semesterId,
+  //     _type: "reference",
+  //   },
+  // };
 
   // Will throw ClientError if references are non-existent.
   // Will not catch at this time.
-  await sanityClient.create<CreateReviewSanityRequest>(request);
+  // await sanityClient.create<CreateReviewSanityRequest>(request);
   res.status(201).json({});
 }

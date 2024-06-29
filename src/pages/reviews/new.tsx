@@ -8,7 +8,8 @@ import { FormEvent, Fragment, useEffect, useMemo, useState } from "react";
 
 import { Course, Review, Semester } from "src/@types";
 import { Alert } from "src/components/alert";
-import { sanityClient } from "src/sanity";
+
+// import { sanityClient } from "src/sanity";
 
 interface NewReviewFormProps {
   courses: Pick<Course, "id" | "slug" | "name">[];
@@ -21,24 +22,26 @@ type RequestState = {
 };
 
 export const getStaticProps: GetStaticProps<NewReviewFormProps> = async () => {
-  const query = `{ 
-    "courses": *[_type == 'course'] {
-      "id": _id,
-      "slug": slug.current,
-      name
-    } | order(name),
-    "semesters" : *[_type == 'semester' && startDate <= now()]{
-    "id": _id,
-    ...
-    } | order(startDate desc)[0...$limit]
-  }`;
+  // const query = `{
+  //   "courses": *[_type == 'course'] {
+  //     "id": _id,
+  //     "slug": slug.current,
+  //     name
+  //   } | order(name),
+  //   "semesters" : *[_type == 'semester' && startDate <= now()]{
+  //   "id": _id,
+  //   ...
+  //   } | order(startDate desc)[0...$limit]
+  // }`;
 
-  const { courses, semesters } = await sanityClient.fetch<NewReviewFormProps>(
-    query,
-    {
-      limit: 3,
-    },
-  );
+  // const { courses, semesters } = await sanityClient.fetch<NewReviewFormProps>(
+  //   query,
+  //   {
+  //     limit: 3,
+  //   },
+  // );
+  const courses: Pick<Course, "id" | "slug" | "name">[] = [];
+  const semesters: Semester[] = [];
 
   return { props: { courses, semesters } };
 };

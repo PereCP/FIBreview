@@ -12,7 +12,7 @@ import Link from "next/link";
 
 import type { Course, Program, Review, Semester } from "src/@types";
 import { Review as ReviewComponent } from "src/components/review";
-import { sanityClient } from "src/sanity";
+// import { sanityClient } from "src/sanity";
 import { formatList, formatNumber } from "src/util/format";
 
 interface ReviewsPathParams {
@@ -52,13 +52,14 @@ function average(
 }
 
 export const getStaticPaths: GetStaticPaths<ReviewsPathParams> = async () => {
-  const query = `
-  *[_type == 'course'] {
-      "slug": slug.current
-    }
-  `;
+  // const query = `
+  // *[_type == 'course'] {
+  //     "slug": slug.current
+  //   }
+  // `;
 
-  const slugs = await sanityClient.fetch<Pick<Course, "slug">[]>(query);
+  // const slugs = await sanityClient.fetch<Pick<Course, "slug">[]>(query);
+  const slugs: Pick<Course, "slug">[] = [];
 
   const paths = slugs.map(({ slug }) => ({
     params: { slug },
@@ -78,27 +79,44 @@ export const getStaticProps: GetStaticProps<
     throw new Error("No slug passed to `getStaticProps`");
   }
 
-  const query = `
-    *[_type == 'course' && slug.current == $slug]{
-      "id": _id,
-      "created": _createdAt,
-      ...,
-      "slug": slug.current,
-      "syllabusUrl": coalesce(syllabus.file.asset->url, syllabus.url),
-      programs[]->{acronym},
-      "reviews": *[_type == 'review' && references(^._id)]{
-        "id": _id,
-        "created": _createdAt,
-        ...,
-        "course": null,
-        semester->
-      } | order(created desc)
-    }[0]
-  `;
+  // const query = `
+  //   *[_type == 'course' && slug.current == $slug]{
+  //     "id": _id,
+  //     "created": _createdAt,
+  //     ...,
+  //     "slug": slug.current,
+  //     "syllabusUrl": coalesce(syllabus.file.asset->url, syllabus.url),
+  //     programs[]->{acronym},
+  //     "reviews": *[_type == 'review' && references(^._id)]{
+  //       "id": _id,
+  //       "created": _createdAt,
+  //       ...,
+  //       "course": null,
+  //       semester->
+  //     } | order(created desc)
+  //   }[0]
+  // `;
 
-  const course = await sanityClient.fetch<CourseWithReviews>(query, {
-    slug,
-  });
+  // const course = await sanityClient.fetch<CourseWithReviews>(query, {
+  //   slug,
+  // });
+  const course: CourseWithReviews = {
+    id: "",
+    slug: "",
+    codes: [],
+    name: "",
+    description: "",
+    creditHours: 0,
+    syllabusUrl: "",
+    textbooks: [],
+    isFoundational: false,
+    isDeprecated: false,
+    officialURL: "",
+    notesURL: "",
+    tags: [],
+    programs: [],
+    reviews: [],
+  };
 
   const rating = average(course.reviews, "rating");
   const difficulty = average(course.reviews, "difficulty");

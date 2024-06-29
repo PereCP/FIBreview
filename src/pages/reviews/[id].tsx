@@ -3,9 +3,10 @@ import { useRouter } from "next/router";
 
 import type { Course, Review as ReviewType, Semester } from "src/@types";
 import { Review as ReviewComponent } from "src/components/review";
-import { sanityClient } from "src/sanity";
 
-const PRERENDER_LIMIT = 100;
+// import { sanityClient } from "src/sanity";
+
+// const PRERENDER_LIMIT = 100;
 
 type ReviewPathParams = Pick<ReviewType, "id">;
 type ReviewPageProps = {
@@ -16,15 +17,16 @@ type ReviewPageProps = {
 };
 
 export const getStaticPaths: GetStaticPaths<ReviewPathParams> = async () => {
-  const query = `
-  *[_type == 'review'] {
-      "id": _id
-    }[0...$limit]
-  `;
+  // const query = `
+  // *[_type == 'review'] {
+  //     "id": _id
+  //   }[0...$limit]
+  // `;
 
-  const ids = await sanityClient.fetch<Pick<ReviewType, "id">[]>(query, {
-    limit: PRERENDER_LIMIT,
-  });
+  // const ids = await sanityClient.fetch<Pick<ReviewType, "id">[]>(query, {
+  //   limit: PRERENDER_LIMIT,
+  // });
+  const ids: Pick<ReviewType, "id">[] = [];
 
   const paths = ids.map(({ id }) => ({
     params: { id },
@@ -45,22 +47,33 @@ export const getStaticProps: GetStaticProps<
     throw new Error("No review ID passed to `getStaticProps`");
   }
 
-  const query = `
-    *[_type == 'review' && _id == $id]{
-      "id": _id,
-      "created": _createdAt,
-      ...,
-      course->{
-        name,
-        "slug": slug.current
-      },
-      semester->
-    }[0]
-  `;
+  // const query = `
+  //   *[_type == 'review' && _id == $id]{
+  //     "id": _id,
+  //     "created": _createdAt,
+  //     ...,
+  //     course->{
+  //       name,
+  //       "slug": slug.current
+  //     },
+  //     semester->
+  //   }[0]
+  // `;
 
-  const review = await sanityClient.fetch<ReviewPageProps["review"]>(query, {
-    id,
-  });
+  // const review = await sanityClient.fetch<ReviewPageProps["review"]>(query, {
+  //   id,
+  // });
+  const review: ReviewPageProps["review"] = {
+    id: "123",
+    body: "This is a review",
+    authorId: "123",
+    created: new Date().toISOString(),
+    semester: {
+      id: "123",
+      startDate: new Date().toISOString(),
+      term: "spring",
+    },
+  };
 
   if (!review) {
     return {
