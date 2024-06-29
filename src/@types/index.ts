@@ -44,5 +44,5 @@ export interface Course {
 export interface jwtPayload extends JWTPayload {
   accessToken: string;
   refreshToken: string;
-  email: string;
+  username: string;
 }
