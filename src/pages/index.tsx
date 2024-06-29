@@ -21,57 +21,52 @@ import { FC, Fragment, useEffect, useMemo, useState } from "react";
 import type { Course, Review } from "src/@types";
 import { Input } from "src/components/input";
 import { Toggle } from "src/components/toggle";
-// import { sanityClient } from "src/sanity";
+import { connectToDatabase } from "src/lib/mongodb";
 import { formatNumber } from "src/util";
 
-type CourseWithReviewsStats = Course & {
-  reviews: Pick<Review, "rating" | "difficulty" | "workload">[];
-};
 type CourseWithStats = Course & {
   rating?: number;
   difficulty?: number;
   workload?: number;
   reviewCount: number;
 };
+
 interface HomePageProps {
   courses: CourseWithStats[];
 }
 
 export const getStaticProps: GetStaticProps<HomePageProps> = async () => {
-  // const query = `
-  //   *[_type == 'course']{
-  //     ...,
-  //     "slug": slug.current,
-  //     "id": _id,
-  //     "reviews": *[_type == 'review' && references(^._id)]{
-  //       "id": _id,
-  //       "created": _createdAt,
-  //       ...,
-  //       "body": "",
-  //       "course": null,
-  //     }
-  //   }
-  // `;
+  const { db } = await connectToDatabase();
 
-  // const apiResponse = await sanityClient.fetch<CourseWithReviewsStats[]>(query);
-  const apiResponse: CourseWithReviewsStats[] = [];
+  let apiResponse = await db.collection("courses").find({}).toArray();
 
-  const courses = apiResponse.map(({ reviews, ...rest }) => {
-    const course: CourseWithStats = {
-      ...rest,
-      reviewCount: reviews.length,
-    };
+  const courses: CourseWithStats[] = await Promise.all(
+    apiResponse.map(async (course) => {
+      let resultCourse = (await JSON.parse(
+        JSON.stringify(course),
+      )) as CourseWithStats;
+      // TODO: Replace course.slug with course._id once the data is updated
+      const reviews = await JSON.parse(
+        JSON.stringify(
+          await db
+            .collection("reviews")
+            .find({ courseId: course.slug })
+            .toArray(),
+        ),
+      );
 
-    const rating = average(reviews, "rating");
-    const difficulty = average(reviews, "difficulty");
-    const workload = average(reviews, "workload");
+      const rating = average(reviews, "rating");
+      const difficulty = average(reviews, "difficulty");
+      const workload = average(reviews, "workload");
 
-    if (rating) course.rating = rating;
-    if (difficulty) course.difficulty = difficulty;
-    if (workload) course.workload = workload;
+      if (rating) resultCourse.rating = rating;
+      if (difficulty) resultCourse.difficulty = difficulty;
+      if (workload) resultCourse.workload = workload;
+      resultCourse.reviewCount = reviews.length;
 
-    return course;
-  });
+      return resultCourse;
+    }),
+  );
 
   return { props: { courses } };
 };
@@ -325,8 +320,8 @@ export default function Home({ courses }: HomePageProps): JSX.Element {
             minReviewCount || 0,
             maxReviewCount || Number.POSITIVE_INFINITY,
           ) &&
-          between(rating, minRating || 1, maxRating || 5) &&
-          between(difficulty, minDifficulty || 1, maxDifficulty || 5) &&
+          between(rating, minRating || 1, maxRating || 10) &&
+          between(difficulty, minDifficulty || 1, maxDifficulty || 10) &&
           between(workload, minWorkload || 1, maxWorkload || 100) &&
           (hideDeprecated ? isDeprecated === false : true) &&
           (onlyShowFoundational ? isFoundational === true : true) &&
@@ -407,9 +402,9 @@ export default function Home({ courses }: HomePageProps): JSX.Element {
 
     const debounceId = setTimeout(() => {
       const matches = searchIndex.search(searchInput);
-      const ids = new Set(matches.map(({ item: { id } }) => id));
+      const ids = new Set(matches.map(({ item: { _id } }) => _id));
 
-      setSearchResults(sorted.filter(({ id }) => ids.has(id)));
+      setSearchResults(sorted.filter(({ _id }) => ids.has(_id)));
     }, 500);
 
     return function cleanup() {
@@ -571,7 +566,7 @@ export default function Home({ courses }: HomePageProps): JSX.Element {
                                           id="maxRating"
                                           type="text"
                                           label="Max Rating"
-                                          placeholder="5"
+                                          placeholder="10"
                                           defaultValue={getDefaultInputValue(
                                             maxRating,
                                           )}
@@ -863,7 +858,7 @@ export default function Home({ courses }: HomePageProps): JSX.Element {
                     {page.map(
                       (
                         {
-                          id,
+                          _id,
                           slug,
                           codes,
                           name,
@@ -877,7 +872,7 @@ export default function Home({ courses }: HomePageProps): JSX.Element {
                         index,
                       ) => (
                         <tr
-                          key={id}
+                          key={_id}
                           className={index % 2 === 0 ? undefined : "bg-gray-50"}
                         >
                           <td className="px-3 py-4 text-sm text-gray-700 sm:pl-6">

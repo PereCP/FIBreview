@@ -7,7 +7,7 @@ export interface Semester {
 }
 
 export interface Review {
-  id: string;
+  _id: string;
   body: string;
   authorId: string; // encrypted GT username of author
   created: string; // ISO Datetime string
@@ -23,7 +23,7 @@ export interface Program {
 }
 
 export interface Course {
-  id: string;
+  _id: string;
   slug: string;
   codes: string[];
   name: string;
