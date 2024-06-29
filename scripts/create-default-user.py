@@ -36,9 +36,11 @@ def create_default_user(clientDB):
 if __name__ == '__main__':
     clientDB = get_database()
     try:
-        clientDB['fibreview'].create_collection('dummy')
+        clientDB.fibreview.create_collection('dummy')
     except:
         pass
+
+    clientDB.fibreview.dummy.insert_one({'dummy': 'dummy'})
 
     create_default_user(clientDB)
 
