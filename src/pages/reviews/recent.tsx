@@ -3,8 +3,7 @@ import Head from "next/head";
 
 import type { Course, Review } from "src/@types";
 import { Review as ReviewComponent } from "src/components/review";
-
-// import { sanityClient } from "src/sanity";
+import { connectToDatabase } from "src/lib/mongodb";
 
 interface ReviewsPageProps {
   reviews: Array<
@@ -15,21 +14,27 @@ interface ReviewsPageProps {
 }
 
 export const getStaticProps: GetStaticProps<ReviewsPageProps> = async () => {
-  // const query = `
-  //   *[_type == 'review']{
-  //     "id": _id,
-  //     "created": _createdAt,
-  //     ...,
-  //     semester->,
-  //     course-> {
-  //       name,
-  //       "slug": slug.current
-  //     }
-  //   } | order(_createdAt desc)[0...100]
-  // `;
+  const { db } = await connectToDatabase();
 
-  // const reviews = await sanityClient.fetch<ReviewsPageProps["reviews"]>(query);
-  const reviews: ReviewsPageProps["reviews"] = [];
+  const dbReviews = await db
+    .collection("reviews")
+    .find({}, { sort: { created: -1 }, limit: 100 })
+    .toArray();
+  const dbCourses = await db.collection("courses").find({}).toArray();
+
+  const reviews = await dbReviews.map((r) => {
+    let review = JSON.parse(JSON.stringify(r));
+    delete review._id;
+    review = { _id: r._id.toString(), ...review };
+
+    const course = dbCourses.find(
+      (c) => c._id.toString() === r.courseId.toString(),
+    );
+    return {
+      ...review,
+      course: { name: course?.name, slug: course?.slug },
+    };
+  });
 
   return { props: { reviews } };
 };

@@ -8,8 +8,7 @@ import { FormEvent, Fragment, useEffect, useMemo, useState } from "react";
 
 import { Course, Review } from "src/@types";
 import { Alert } from "src/components/alert";
-
-// import { sanityClient } from "src/sanity";
+import { connectToDatabase } from "src/lib/mongodb";
 
 interface NewReviewFormProps {
   courses: Pick<Course, "_id" | "slug" | "name">[];
@@ -21,27 +20,14 @@ type RequestState = {
 };
 
 export const getStaticProps: GetStaticProps<NewReviewFormProps> = async () => {
-  // const query = `{
-  //   "courses": *[_type == 'course'] {
-  //     "id": _id,
-  //     "slug": slug.current,
-  //     name
-  //   } | order(name),
-  //   "semesters" : *[_type == 'semester' && startDate <= now()]{
-  //   "id": _id,
-  //   ...
-  //   } | order(startDate desc)[0...$limit]
-  // }`;
+  const { db } = await connectToDatabase();
+  let courses = await JSON.parse(
+    JSON.stringify(await db.collection("courses").find().toArray()),
+  );
 
-  // const { courses, semesters } = await sanityClient.fetch<NewReviewFormProps>(
-  //   query,
-  //   {
-  //     limit: 3,
-  //   },
-  // );
-  const courses: Pick<Course, "_id" | "slug" | "name" | "term">[] = [];
+  // TODO: Implement a semester selection with drop down menu
 
-  return { props: { courses } };
+  return { props: { courses /*, semesters*/ } };
 };
 
 export default function NewReviewForm({

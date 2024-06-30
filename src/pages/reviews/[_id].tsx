@@ -24,8 +24,6 @@ export const getStaticPaths: GetStaticPaths<ReviewPathParams> = async () => {
     return { params: { _id: _id.toString() } };
   });
 
-  console.log(paths);
-
   return {
     paths,
     // https://nextjs.org/docs/api-reference/data-fetching/get-static-paths#when-is-fallback-true-useful
