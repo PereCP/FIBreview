@@ -6,7 +6,7 @@ import type { Course, Review as ReviewType } from "src/@types";
 import { Review as ReviewComponent } from "src/components/review";
 import { connectToDatabase } from "src/lib/mongodb";
 
-// const PRERENDER_LIMIT = 100;
+const PRERENDER_LIMIT = 100;
 
 type ReviewPathParams = Pick<ReviewType, "_id">;
 type ReviewPageProps = {
@@ -18,7 +18,16 @@ type ReviewPageProps = {
 export const getStaticPaths: GetStaticPaths<ReviewPathParams> = async () => {
   const { db } = await connectToDatabase();
 
-  const ids = await db.collection("reviews").distinct("_id");
+  const ids = await db
+    .collection("reviews")
+    .aggregate([
+      { $group: { _id: "$_id" } },
+      { $sort: { _id: 1 } },
+      { $limit: PRERENDER_LIMIT },
+    ])
+    .toArray();
+
+  console.log(ids);
 
   const paths = ids.map((_id) => {
     return { params: { _id: _id.toString() } };
