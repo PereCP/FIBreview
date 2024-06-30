@@ -2,7 +2,7 @@ import Joi from "joi";
 import type { NextApiRequest, NextApiResponse } from "next";
 
 // import crypto from "node:crypto";
-import type { Course, Review, Semester } from "src/@types";
+import type { Course, Review } from "src/@types";
 
 // import { connectToDatabase } from "src/lib/mongodb";
 
@@ -12,8 +12,9 @@ type CreateReviewRequest = {
   workload: NonNullable<Review["workload"]>;
   body: Review["body"];
   courseId: Course["_id"];
-  semesterId: Semester["_id"];
   username: string;
+  term: NonNullable<Review["term"]>;
+  date: NonNullable<Review["date"]>;
 };
 
 // const KEY = process.env.ENCRYPTION_KEY;
@@ -43,7 +44,6 @@ type CreateReviewRequest = {
 // };
 
 const schema = Joi.object<CreateReviewRequest>({
-  semesterId: Joi.string().required().label("Semester"),
   courseId: Joi.string().required().label("Course"),
   rating: Joi.number().required().integer().min(1).max(5).label("Rating"),
   difficulty: Joi.number()
@@ -55,6 +55,8 @@ const schema = Joi.object<CreateReviewRequest>({
     .label("Difficulty"),
   workload: Joi.number().required().integer().min(1).max(100).label("Workload"),
   body: Joi.string().required().label("Body"),
+  term: Joi.string().required().valid("spring", "fall").label("Term"),
+  date: Joi.date().required().label("Date"),
   username: Joi.string().required().label("Username"),
 });
 
@@ -85,8 +87,7 @@ export default async function handler(
   }
 
   // eslint-disable-next-line no-unused-vars
-  const { username, code, courseId, semesterId, ...review } =
-    validationResult.value;
+  const { username, courseId, term, date, ...review } = validationResult.value;
 
   // const authorId = encrypt(username);
 
@@ -96,10 +97,6 @@ export default async function handler(
   //   ...review,
   //   course: {
   //     _ref: courseId,
-  //     _type: "reference",
-  //   },
-  //   semester: {
-  //     _ref: semesterId,
   //     _type: "reference",
   //   },
   // };

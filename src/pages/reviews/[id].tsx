@@ -1,17 +1,16 @@
 import type { GetStaticPaths, GetStaticProps } from "next";
 import { useRouter } from "next/router";
 
-import type { Course, Review as ReviewType, Semester } from "src/@types";
+import type { Course, Review as ReviewType } from "src/@types";
 import { Review as ReviewComponent } from "src/components/review";
 
 // import { sanityClient } from "src/sanity";
 
 // const PRERENDER_LIMIT = 100;
 
-type ReviewPathParams = Pick<ReviewType, "id">;
+type ReviewPathParams = Pick<ReviewType, "_id">;
 type ReviewPageProps = {
   review: ReviewType & {
-    semester: Semester;
     course?: Pick<Course, "name" | "slug">;
   };
 };
@@ -26,10 +25,10 @@ export const getStaticPaths: GetStaticPaths<ReviewPathParams> = async () => {
   // const ids = await sanityClient.fetch<Pick<ReviewType, "id">[]>(query, {
   //   limit: PRERENDER_LIMIT,
   // });
-  const ids: Pick<ReviewType, "id">[] = [];
+  const ids: Pick<ReviewType, "_id">[] = [];
 
-  const paths = ids.map(({ id }) => ({
-    params: { id },
+  const paths = ids.map(({ _id }) => ({
+    params: { _id },
   }));
 
   return {
@@ -42,8 +41,8 @@ export const getStaticPaths: GetStaticPaths<ReviewPathParams> = async () => {
 export const getStaticProps: GetStaticProps<
   ReviewPageProps,
   ReviewPathParams
-> = async ({ params: { id } = {} }) => {
-  if (!id) {
+> = async ({ params: { _id } = {} }) => {
+  if (!_id) {
     throw new Error("No review ID passed to `getStaticProps`");
   }
 
@@ -64,14 +63,15 @@ export const getStaticProps: GetStaticProps<
   //   id,
   // });
   const review: ReviewPageProps["review"] = {
-    id: "123",
+    _id: "123",
     body: "This is a review",
     authorId: "123",
     created: new Date().toISOString(),
-    semester: {
-      id: "123",
-      startDate: new Date().toISOString(),
-      term: "spring",
+    term: "spring",
+    date: new Date().toISOString(),
+    course: {
+      name: "Course Name",
+      slug: "course-name",
     },
   };
 

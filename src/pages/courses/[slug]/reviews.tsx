@@ -10,7 +10,7 @@ import type { GetStaticPaths, GetStaticProps } from "next";
 import Head from "next/head";
 import Link from "next/link";
 
-import type { Course, Program, Review, Semester } from "src/@types";
+import type { Course, Program, Review } from "src/@types";
 import { Review as ReviewComponent } from "src/components/review";
 // import { sanityClient } from "src/sanity";
 import { formatList, formatNumber } from "src/util/format";
@@ -22,7 +22,7 @@ interface ReviewsPathParams {
 
 type CourseWithReviews = Course & {
   programs: Array<Pick<Program, "acronym">>;
-  reviews: Array<Review & { semester: Semester }>;
+  reviews: Array<Review>;
 };
 
 interface ReviewsPageProps {
@@ -101,10 +101,11 @@ export const getStaticProps: GetStaticProps<
   //   slug,
   // });
   const course: CourseWithReviews = {
-    id: "",
+    _id: "",
     slug: "",
     codes: [],
     name: "",
+    term: "any",
     description: "",
     creditHours: 0,
     syllabusUrl: "",

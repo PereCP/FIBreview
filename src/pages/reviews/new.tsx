@@ -6,14 +6,13 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { FormEvent, Fragment, useEffect, useMemo, useState } from "react";
 
-import { Course, Review, Semester } from "src/@types";
+import { Course, Review } from "src/@types";
 import { Alert } from "src/components/alert";
 
 // import { sanityClient } from "src/sanity";
 
 interface NewReviewFormProps {
-  courses: Pick<Course, "id" | "slug" | "name">[];
-  semesters: Semester[];
+  courses: Pick<Course, "_id" | "slug" | "name">[];
 }
 
 type RequestState = {
@@ -40,23 +39,20 @@ export const getStaticProps: GetStaticProps<NewReviewFormProps> = async () => {
   //     limit: 3,
   //   },
   // );
-  const courses: Pick<Course, "id" | "slug" | "name">[] = [];
-  const semesters: Semester[] = [];
+  const courses: Pick<Course, "_id" | "slug" | "name" | "term">[] = [];
 
-  return { props: { courses, semesters } };
+  return { props: { courses } };
 };
 
 export default function NewReviewForm({
   courses,
-  semesters,
 }: NewReviewFormProps): JSX.Element {
   const router = useRouter();
 
   const [query, setQuery] = useState("");
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
 
-  const [courseId, setCourseId] = useState<Course["id"]>("");
-  const [semesterId, setSemesterId] = useState<Semester["id"]>("");
+  const [courseId, setCourseId] = useState<Course["_id"]>("");
   const [rating, setRating] = useState<NonNullable<Review["rating"]>>();
   const [difficulty, setDifficulty] =
     useState<NonNullable<Review["difficulty"]>>();
@@ -73,7 +69,7 @@ export default function NewReviewForm({
   });
 
   const selectedCourse = useMemo<(typeof courses)[0] | undefined>(
-    () => courses.find(({ id }) => id === courseId),
+    () => courses.find(({ _id }) => _id === courseId),
     [courseId, courses],
   );
 
@@ -82,7 +78,7 @@ export default function NewReviewForm({
 
     if (typeof courseSlug === "string") {
       setCourseId(
-        courses.find((course) => course.slug === courseSlug)?.id ?? "",
+        courses.find((course) => course.slug === courseSlug)?._id ?? "",
       );
     }
   }, [router, courses]);
@@ -113,13 +109,11 @@ export default function NewReviewForm({
 
   function closeSuccessModal() {
     setCourseId("");
-    setSemesterId("");
     setRating(undefined);
     setDifficulty(undefined);
     setWorkload(undefined);
     setBody("");
     setUsername("");
-    setCode("");
 
     setIsSuccessModalOpen(false);
   }
@@ -165,13 +159,11 @@ export default function NewReviewForm({
         method: "POST",
         body: JSON.stringify({
           courseId,
-          semesterId,
           rating,
           difficulty,
           workload,
           body,
           username,
-          code,
         }),
         headers: {
           "Content-Type": "application/json",
@@ -268,8 +260,8 @@ export default function NewReviewForm({
                   <Combobox.Options className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
                     {filteredCourses.map((course) => (
                       <Combobox.Option
-                        key={course.id}
-                        value={course.id}
+                        key={course._id}
+                        value={course._id}
                         className={({ active }) =>
                           classNames(
                             "relative cursor-default select-none py-2 pl-3 pr-9",
@@ -322,7 +314,8 @@ export default function NewReviewForm({
                 When did you take this course?
               </p>
               <div className="space-y-4 sm:flex sm:items-center sm:space-x-10 sm:space-y-0">
-                {semesters.map(({ id, term, startDate }) => (
+                {/* TODO: Implement a semester selection with drop down menu*/}
+                {/* {semesters.map(({ id, term, startDate }) => (
                   <div key={id}>
                     <label
                       htmlFor={`semester-${term}-${startDate}`}
@@ -340,7 +333,7 @@ export default function NewReviewForm({
                       />
                     </label>
                   </div>
-                ))}
+                ))} */}
               </div>
             </fieldset>
           </div>

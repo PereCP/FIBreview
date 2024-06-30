@@ -1,7 +1,7 @@
 import type { GetStaticProps } from "next";
 import Head from "next/head";
 
-import type { Course, Review, Semester } from "src/@types";
+import type { Course, Review } from "src/@types";
 import { Review as ReviewComponent } from "src/components/review";
 
 // import { sanityClient } from "src/sanity";
@@ -9,8 +9,7 @@ import { Review as ReviewComponent } from "src/components/review";
 interface ReviewsPageProps {
   reviews: Array<
     Review & {
-      course: Pick<Course, "name" | "slug">;
-      semester: Semester;
+      course: Pick<Course, "name" | "slug" | "term">;
     }
   >;
 }
