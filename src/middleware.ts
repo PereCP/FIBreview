@@ -6,7 +6,7 @@ import { jwtPayload } from "./@types";
 
 export async function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname;
-  const requiredAuthentication = !(path === "/login" || path === "/sign-up");
+  const requiredAuthentication = path === "/reviews/new";
   const loginPath = path === "/login" || path === "/sign-up";
   const develpmentEndpoints = /\/api\/services\/*/.exec(path) !== null;
   const isDevelopment = process.env.NODE_ENV === "development";
@@ -71,5 +71,11 @@ async function refreshToken(request: NextRequest, payload: jwtPayload) {
 }
 
 export const config = {
-  matcher: ["/login", "/sign-up", "/", "/api/services/:path*"],
+  matcher: [
+    "/login",
+    "/sign-up",
+    "/api/services/:path*",
+    "/reviews/new",
+    "/api/reviews",
+  ],
 };

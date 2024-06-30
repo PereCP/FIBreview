@@ -78,9 +78,16 @@ export default async function handler(
     process.env.TOKEN_SECRET as string,
   );
   const jwtToken: string = req.cookies.jwtToken as string;
-  // The jwt should be already verified by the time it reaches this point (Middleware)
-  const jwtData = (await jose.jwtVerify(jwtToken, secretToken))
-    .payload as jwtPayload;
+  let jwtData: jwtPayload;
+  try {
+    jwtData = (await jose.jwtVerify(jwtToken, secretToken))
+      .payload as jwtPayload;
+  } catch (error: any) {
+    // Unauthorized, JWT Verification Error
+    // IMPROVEMENT: perform the same generic operation as in the middleware
+    res.status(401).json({});
+    return;
+  }
 
   formData.date = new Date().toISOString();
   formData.term = "fall";
