@@ -44,12 +44,7 @@ export default function NewReviewForm({
     useState<NonNullable<Review["difficulty"]>>();
   const [workload, setWorkload] = useState<NonNullable<Review["workload"]>>();
   const [body, setBody] = useState<Review["body"]>("");
-  const [username, setUsername] = useState<string>("");
-  const [code, setCode] = useState<string>("");
 
-  const [codeRequestState, setCodeRequestState] = useState<RequestState>({
-    status: "init",
-  });
   const [reviewRequestState, setReviewRequestState] = useState<RequestState>({
     status: "init",
   });
@@ -85,10 +80,6 @@ export default function NewReviewForm({
     [query, courses],
   );
 
-  function onDismissSendCodeAlert() {
-    setCodeRequestState({ status: "init" });
-  }
-
   function onDismissCreateReviewAlert() {
     setReviewRequestState({ status: "init" });
   }
@@ -99,40 +90,8 @@ export default function NewReviewForm({
     setDifficulty(undefined);
     setWorkload(undefined);
     setBody("");
-    setUsername("");
 
     setIsSuccessModalOpen(false);
-  }
-
-  async function sendCode() {
-    if (!username) {
-      return;
-    }
-
-    setCodeRequestState({ status: "pending" });
-
-    try {
-      const response = await fetch("/api/verifications", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ username }),
-      });
-
-      const { error } = (await response.json()) as { error?: string };
-
-      if (error) {
-        setCodeRequestState({ status: "complete", errors: [error] });
-      } else {
-        setCodeRequestState({ status: "complete" });
-      }
-    } catch {
-      setCodeRequestState({
-        status: "complete",
-        errors: ["Something went wrong. Please try again."],
-      });
-    }
   }
 
   async function createReview(e: FormEvent) {
@@ -149,7 +108,6 @@ export default function NewReviewForm({
           difficulty,
           workload,
           body,
-          username,
         }),
         headers: {
           "Content-Type": "application/json",
@@ -164,9 +122,9 @@ export default function NewReviewForm({
 
       setReviewRequestState({ status: "complete", errors });
     } catch {
-      setCodeRequestState({
+      setReviewRequestState({
         status: "complete",
-        errors: ["Something went wrong. Please try again."],
+        errors: ["An error occurred while submitting your review."],
       });
     }
   }
@@ -444,122 +402,6 @@ export default function NewReviewForm({
               So, how was this course?
             </p>
           </div>
-          <div className="pt-8" aria-live="polite">
-            <h3 className="text-lg font-medium leading-6 text-gray-900">
-              Authentication
-            </h3>
-            {codeRequestState.status === "complete" &&
-              !codeRequestState.errors && (
-                <Alert
-                  variant="success"
-                  onDismiss={() => onDismissSendCodeAlert()}
-                >
-                  <p className="text-sm font-medium ">
-                    {`Sent code to ${username}@gatech.edu!`} This code is valid
-                    for 10 minutes. Click &apos;Send code&apos; again if you
-                    need a new code.
-                  </p>
-                </Alert>
-              )}
-            {codeRequestState.status === "complete" &&
-              codeRequestState.errors && (
-                <Alert
-                  variant="failure"
-                  onDismiss={() => onDismissSendCodeAlert()}
-                >
-                  <p className="text-sm font-medium ">
-                    {codeRequestState.errors[0]}
-                  </p>
-                </Alert>
-              )}
-            <div className="mt-1 text-sm text-gray-500">
-              <span className="block">
-                Only verified GATech students can leave reviews at this time.
-              </span>
-              <details className="inline-block">
-                <summary className="cursor-pointer text-xs text-indigo-600 hover:text-indigo-900 md:text-sm">
-                  How does this work?
-                </summary>
-                Enter your GT username below. If you need a code, you can
-                request one be sent to your email. Enter your code below before
-                you submit your review.
-              </details>
-            </div>
-            <div className="mt-6 grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-6">
-              <div className="sm:col-span-6">
-                <label
-                  htmlFor="username"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  GT Account
-                  <div className="mt-1 flex flex-wrap gap-4">
-                    <div className="flex shrink-0">
-                      <input
-                        required
-                        type="text"
-                        name="username"
-                        id="username"
-                        value={username}
-                        onChange={(e) => setUsername(e.currentTarget.value)}
-                        autoComplete="none"
-                        placeholder="david.joyner"
-                        className="relative block min-w-0 rounded-none rounded-l-md border-gray-300 font-normal placeholder-gray-400 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                      />
-                      <span className="inline-flex items-center rounded-r-md border border-l-0 border-gray-300 bg-gray-50 px-3 text-gray-500 sm:text-sm">
-                        @gatech.edu
-                      </span>
-                    </div>
-                    {username && (
-                      <button
-                        type="button"
-                        {...(codeRequestState.status === "pending"
-                          ? { disabled: true }
-                          : {})}
-                        onClick={() => {
-                          sendCode().catch(() => {});
-                        }}
-                        className="rounded-md border border-transparent bg-indigo-100 px-2 py-1 text-xs font-medium text-indigo-700 shadow-sm hover:bg-indigo-200 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:ring-offset-2"
-                      >
-                        {codeRequestState.status === "pending"
-                          ? "Sending..."
-                          : "Send code"}
-                      </button>
-                    )}
-                  </div>
-                </label>
-                <p className="mt-2 text-sm text-gray-500">
-                  Who are you, fellow student?
-                </p>
-              </div>
-              <div className="sm:col-span-4">
-                <label
-                  htmlFor="code"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  Code
-                  <div className="mt-1">
-                    <input
-                      required
-                      type="text"
-                      minLength={6}
-                      maxLength={6}
-                      pattern="\d+"
-                      inputMode="numeric"
-                      name="code"
-                      id="code"
-                      value={code}
-                      onChange={(e) => setCode(e.currentTarget.value)}
-                      placeholder="123456"
-                      className="relative block min-w-0 rounded border-gray-300 font-normal placeholder-gray-400 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                    />
-                  </div>
-                </label>
-                <p className="mt-2 text-sm text-gray-500">
-                  Please enter your one-time six-digit code.
-                </p>
-              </div>
-            </div>
-          </div>
           <div className="pt-5">
             <div className="flex justify-end">
               <button
@@ -623,8 +465,8 @@ export default function NewReviewForm({
                       </Dialog.Title>
                       <div className="mt-2">
                         <p className="text-sm text-gray-500">
-                          Thanks, {username}! It&apos;s so awesome you took the
-                          time to write a review.
+                          Thanks! It&apos;s so awesome you took the time to
+                          write a review.
                         </p>
                       </div>
                     </div>

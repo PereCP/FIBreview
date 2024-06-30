@@ -13,6 +13,7 @@ import {
 } from "@heroicons/react/solid";
 import classNames from "classnames";
 import Fuse from "fuse.js";
+import { ObjectId } from "mongodb";
 import type { GetStaticProps } from "next";
 import Head from "next/head";
 import Link from "next/link";
@@ -49,7 +50,7 @@ export const getStaticProps: GetStaticProps<HomePageProps> = async () => {
         JSON.stringify(
           await db
             .collection("reviews")
-            .find({ courseId: course._id })
+            .find({ courseId: new ObjectId(course._id) })
             .toArray(),
         ),
       );

@@ -6,6 +6,7 @@ import {
 } from "@heroicons/react/outline";
 import { PlusIcon } from "@heroicons/react/solid";
 import classNames from "classnames";
+import { ObjectId } from "mongodb";
 import type { GetStaticPaths, GetStaticProps } from "next";
 import Head from "next/head";
 import Link from "next/link";
@@ -79,7 +80,7 @@ export const getStaticProps: GetStaticProps<
   let course = await JSON.parse(
     JSON.stringify(
       await db.collection("courses").findOne({
-        slug,
+        slug: slug,
       }),
     ),
   );
@@ -88,13 +89,12 @@ export const getStaticProps: GetStaticProps<
     throw new Error("Course not found");
   }
 
-  const courseId = course?._id.toString();
-  delete course._id;
-  course = { courseId, ...course };
-
   const reviews = await JSON.parse(
     JSON.stringify(
-      await db.collection("reviews").find({ courseId: course._id }).toArray(),
+      await db
+        .collection("reviews")
+        .find({ courseId: new ObjectId(course._id) })
+        .toArray(),
     ),
   );
 

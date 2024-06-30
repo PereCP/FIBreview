@@ -1,8 +1,10 @@
 import Joi from "joi";
+import * as jose from "jose";
+import { ObjectId } from "mongodb";
 import type { NextApiRequest, NextApiResponse } from "next";
 
 // import crypto from "node:crypto";
-import type { Course, Review } from "src/@types";
+import type { Course, Review, jwtPayload } from "src/@types";
 import { connectToDatabase } from "src/lib/mongodb";
 
 type CreateReviewRequest = {
@@ -71,6 +73,19 @@ export default async function handler(
     return;
   }
 
+  let formData = req.body;
+  const secretToken: Uint8Array = new TextEncoder().encode(
+    process.env.TOKEN_SECRET as string,
+  );
+  const jwtToken: string = req.cookies.jwtToken as string;
+  // The jwt should be already verified by the time it reaches this point (Middleware)
+  const jwtData = (await jose.jwtVerify(jwtToken, secretToken))
+    .payload as jwtPayload;
+
+  formData.date = new Date().toISOString();
+  formData.term = "fall";
+  formData.username = jwtData.username;
+
   const validationOptions = {
     abortEarly: false,
     errors: { wrap: { label: "" } },
@@ -93,7 +108,7 @@ export default async function handler(
 
   const requestReview = {
     authorId: authorId,
-    courseId: courseId,
+    courseId: new ObjectId(courseId),
     term: term,
     date: date,
     body: review.body,
