@@ -45,12 +45,11 @@ export const getStaticProps: GetStaticProps<HomePageProps> = async () => {
       let resultCourse = (await JSON.parse(
         JSON.stringify(course),
       )) as CourseWithStats;
-      // TODO: Replace course.slug with course._id once the data is updated
       const reviews = await JSON.parse(
         JSON.stringify(
           await db
             .collection("reviews")
-            .find({ courseId: course.slug })
+            .find({ courseId: course._id })
             .toArray(),
         ),
       );

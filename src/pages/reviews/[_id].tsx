@@ -1,10 +1,10 @@
+import { ObjectId } from "mongodb";
 import type { GetStaticPaths, GetStaticProps } from "next";
 import { useRouter } from "next/router";
 
 import type { Course, Review as ReviewType } from "src/@types";
 import { Review as ReviewComponent } from "src/components/review";
-
-// import { sanityClient } from "src/sanity";
+import { connectToDatabase } from "src/lib/mongodb";
 
 // const PRERENDER_LIMIT = 100;
 
@@ -16,20 +16,15 @@ type ReviewPageProps = {
 };
 
 export const getStaticPaths: GetStaticPaths<ReviewPathParams> = async () => {
-  // const query = `
-  // *[_type == 'review'] {
-  //     "id": _id
-  //   }[0...$limit]
-  // `;
+  const { db } = await connectToDatabase();
 
-  // const ids = await sanityClient.fetch<Pick<ReviewType, "id">[]>(query, {
-  //   limit: PRERENDER_LIMIT,
-  // });
-  const ids: Pick<ReviewType, "_id">[] = [];
+  const ids = await db.collection("reviews").distinct("_id");
 
-  const paths = ids.map(({ _id }) => ({
-    params: { _id },
-  }));
+  const paths = ids.map((_id) => {
+    return { params: { _id: _id.toString() } };
+  });
+
+  console.log(paths);
 
   return {
     paths,
@@ -46,33 +41,27 @@ export const getStaticProps: GetStaticProps<
     throw new Error("No review ID passed to `getStaticProps`");
   }
 
-  // const query = `
-  //   *[_type == 'review' && _id == $id]{
-  //     "id": _id,
-  //     "created": _createdAt,
-  //     ...,
-  //     course->{
-  //       name,
-  //       "slug": slug.current
-  //     },
-  //     semester->
-  //   }[0]
-  // `;
+  const { db } = await connectToDatabase();
 
-  // const review = await sanityClient.fetch<ReviewPageProps["review"]>(query, {
-  //   id,
-  // });
-  const review: ReviewPageProps["review"] = {
-    _id: "123",
-    body: "This is a review",
-    authorId: "123",
-    created: new Date().toISOString(),
-    term: "spring",
-    date: new Date().toISOString(),
-    course: {
-      name: "Course Name",
-      slug: "course-name",
-    },
+  let review = await JSON.parse(
+    JSON.stringify(
+      await db
+        .collection("reviews")
+        .findOne({ _id: new ObjectId(_id.toString()) }),
+    ),
+  );
+
+  const tmpCourse = await JSON.parse(
+    JSON.stringify(
+      await db
+        .collection("courses")
+        .findOne({ _id: new ObjectId(review.courseId.toString()) }),
+    ),
+  );
+
+  review = {
+    ...review,
+    course: { name: tmpCourse.name, slug: tmpCourse.slug },
   };
 
   if (!review) {
