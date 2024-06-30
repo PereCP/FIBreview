@@ -46,7 +46,7 @@ export default function Reviews({ reviews }: ReviewsPageProps): JSX.Element {
         </h3>
         <ul className="space-y-4 divide-gray-200">
           {reviews.map((review) => (
-            <li key={review.id}>
+            <li key={review._id}>
               <ReviewComponent review={review} />
             </li>
           ))}

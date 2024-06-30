@@ -3,8 +3,7 @@ import type { NextApiRequest, NextApiResponse } from "next";
 
 // import crypto from "node:crypto";
 import type { Course, Review } from "src/@types";
-
-// import { connectToDatabase } from "src/lib/mongodb";
+import { connectToDatabase } from "src/lib/mongodb";
 
 type CreateReviewRequest = {
   rating: NonNullable<Review["rating"]>;
@@ -90,19 +89,23 @@ export default async function handler(
   const { username, courseId, term, date, ...review } = validationResult.value;
 
   // const authorId = encrypt(username);
+  const authorId = username;
 
-  // const request = {
-  //   _type: "review",
-  //   authorId,
-  //   ...review,
-  //   course: {
-  //     _ref: courseId,
-  //     _type: "reference",
-  //   },
-  // };
+  const requestReview = {
+    authorId: authorId,
+    courseId: courseId,
+    term: term,
+    date: date,
+    body: review.body,
+    rating: review.rating,
+    difficulty: review.difficulty,
+    workload: review.workload,
+    created: new Date().toISOString(),
+  };
 
-  // Will throw ClientError if references are non-existent.
-  // Will not catch at this time.
-  // await sanityClient.create<CreateReviewSanityRequest>(request);
+  const { db } = await connectToDatabase();
+  // IMPROVEMENT: Check for errors and return 500 if there are any.
+  await db.collection("reviews").insertOne(requestReview);
+
   res.status(201).json({});
 }

@@ -12,7 +12,7 @@ import Link from "next/link";
 
 import type { Course, Program, Review } from "src/@types";
 import { Review as ReviewComponent } from "src/components/review";
-// import { sanityClient } from "src/sanity";
+import { connectToDatabase } from "src/lib/mongodb";
 import { formatList, formatNumber } from "src/util/format";
 
 interface ReviewsPathParams {
@@ -52,18 +52,13 @@ function average(
 }
 
 export const getStaticPaths: GetStaticPaths<ReviewsPathParams> = async () => {
-  // const query = `
-  // *[_type == 'course'] {
-  //     "slug": slug.current
-  //   }
-  // `;
+  const { db } = await connectToDatabase();
 
-  // const slugs = await sanityClient.fetch<Pick<Course, "slug">[]>(query);
-  const slugs: Pick<Course, "slug">[] = [];
+  const slugs = await db.collection("courses").distinct("slug");
 
-  const paths = slugs.map(({ slug }) => ({
-    params: { slug },
-  }));
+  const paths = slugs.map((slug) => {
+    return { params: { slug: slug } };
+  });
 
   return {
     paths,
@@ -79,49 +74,35 @@ export const getStaticProps: GetStaticProps<
     throw new Error("No slug passed to `getStaticProps`");
   }
 
-  // const query = `
-  //   *[_type == 'course' && slug.current == $slug]{
-  //     "id": _id,
-  //     "created": _createdAt,
-  //     ...,
-  //     "slug": slug.current,
-  //     "syllabusUrl": coalesce(syllabus.file.asset->url, syllabus.url),
-  //     programs[]->{acronym},
-  //     "reviews": *[_type == 'review' && references(^._id)]{
-  //       "id": _id,
-  //       "created": _createdAt,
-  //       ...,
-  //       "course": null,
-  //       semester->
-  //     } | order(created desc)
-  //   }[0]
-  // `;
+  const { db } = await connectToDatabase();
 
-  // const course = await sanityClient.fetch<CourseWithReviews>(query, {
-  //   slug,
-  // });
-  const course: CourseWithReviews = {
-    _id: "",
-    slug: "",
-    codes: [],
-    name: "",
-    term: "any",
-    description: "",
-    creditHours: 0,
-    syllabusUrl: "",
-    textbooks: [],
-    isFoundational: false,
-    isDeprecated: false,
-    officialURL: "",
-    notesURL: "",
-    tags: [],
-    programs: [],
-    reviews: [],
-  };
+  let course = await JSON.parse(
+    JSON.stringify(
+      await db.collection("courses").findOne({
+        slug,
+      }),
+    ),
+  );
 
-  const rating = average(course.reviews, "rating");
-  const difficulty = average(course.reviews, "difficulty");
-  const workload = average(course.reviews, "workload");
+  if (!course) {
+    throw new Error("Course not found");
+  }
+
+  const courseId = course?._id.toString();
+  delete course._id;
+  course = { courseId, ...course };
+
+  const reviews = await JSON.parse(
+    JSON.stringify(
+      await db.collection("reviews").find({ courseId: course._id }).toArray(),
+    ),
+  );
+
+  course = { ...course, reviews };
+
+  const rating = average(reviews, "rating");
+  const difficulty = average(reviews, "difficulty");
+  const workload = average(reviews, "workload");
 
   return { props: { course: { ...course, rating, difficulty, workload } } };
 };
@@ -134,7 +115,6 @@ export default function Reviews({
     codes,
     creditHours,
     description,
-    programs,
     textbooks,
     syllabusUrl,
     rating,
@@ -142,7 +122,7 @@ export default function Reviews({
     workload,
   },
 }: ReviewsPageProps): JSX.Element {
-  const programAcronyms = programs.map(({ acronym }) => acronym);
+  const programAcronyms: string[] = [];
 
   return (
     <>
@@ -285,7 +265,7 @@ export default function Reviews({
           {reviews.length > 0 ? (
             <ul className="space-y-4 divide-gray-200">
               {reviews.map((review) => (
-                <li key={review.id}>
+                <li key={review._id}>
                   <ReviewComponent review={review} />
                 </li>
               ))}
