@@ -1,6 +1,6 @@
 import { Strategy as OAuth2Strategy } from "passport-oauth2";
 
-import { jwtPayload } from "src/@types";
+import { UserToken } from "src/@types";
 
 interface userFibApi {
   assignatures: string;
@@ -33,7 +33,7 @@ const strategy = new OAuth2Strategy(
   ) => {
     const { username } = await getFibUser(accessToken);
 
-    const user: jwtPayload = {
+    const user: UserToken = {
       accessToken,
       refreshToken,
       username: username,

@@ -1,10 +1,10 @@
 import Joi from "joi";
-import * as jose from "jose";
 import { ObjectId } from "mongodb";
 import type { NextApiRequest, NextApiResponse } from "next";
 
 // import crypto from "node:crypto";
-import type { Course, Review, jwtPayload } from "src/@types";
+import type { Course, Review } from "src/@types";
+import { getUserToken } from "src/lib/jwt";
 import { connectToDatabase } from "src/lib/mongodb";
 
 type CreateReviewRequest = {
@@ -74,24 +74,16 @@ export default async function handler(
   }
 
   let formData = req.body;
-  const secretToken: Uint8Array = new TextEncoder().encode(
-    process.env.TOKEN_SECRET as string,
-  );
-  const jwtToken: string = req.cookies.jwtToken as string;
-  let jwtData: jwtPayload;
   try {
-    jwtData = (await jose.jwtVerify(jwtToken, secretToken))
-      .payload as jwtPayload;
+    const { userToken } = await getUserToken(req.cookies.jwtToken as string);
+    formData.username = userToken.username;
   } catch (error: any) {
-    // Unauthorized, JWT Verification Error
-    // IMPROVEMENT: perform the same generic operation as in the middleware
     res.status(401).json({});
     return;
   }
 
   formData.date = new Date().toISOString();
   formData.term = "fall";
-  formData.username = jwtData.username;
 
   const validationOptions = {
     abortEarly: false,
