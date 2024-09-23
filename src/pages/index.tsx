@@ -67,7 +67,10 @@ export const getStaticProps: GetStaticProps<HomePageProps> = async () => {
     }),
   );
 
-  return { props: { courses } };
+  return {
+    props: { courses },
+    revalidate: true,
+  };
 };
 
 interface PaginationProps {

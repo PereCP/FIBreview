@@ -64,7 +64,7 @@ export async function middleware(request: NextRequest) {
 
     if (originalSlug !== upperSlug) {
       return NextResponse.redirect(
-        new URL("/courses/" + upperSlug + "/reviews", request.nextUrl),
+        new URL(`/courses/${upperSlug}/reviews`, request.nextUrl),
       );
     }
   }

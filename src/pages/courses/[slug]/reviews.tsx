@@ -103,7 +103,12 @@ export const getStaticProps: GetStaticProps<
   const difficulty = average(reviews, "difficulty");
   const workload = average(reviews, "workload");
 
-  return { props: { course: { ...course, rating, difficulty, workload } } };
+  return {
+    props: {
+      course: { ...course, rating, difficulty, workload },
+    },
+    revalidate: true,
+  };
 };
 
 export default function Reviews({
