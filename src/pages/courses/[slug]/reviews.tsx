@@ -112,7 +112,7 @@ export default function Reviews({
     creditHours,
     description,
     name,
-    url,
+    syllabusUrl,
     reviews,
     rating,
     difficulty,
@@ -201,9 +201,9 @@ export default function Reviews({
                     Syllabus
                   </dt>
                   <dd className="col-span-2 mt-0 text-sm text-gray-900">
-                    {url ? (
+                    {syllabusUrl ? (
                       <a
-                        href={url}
+                        href={syllabusUrl}
                         target="_blank"
                         rel="noreferrer"
                         className="font-medium text-indigo-600 hover:text-indigo-500"

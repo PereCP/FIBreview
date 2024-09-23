@@ -118,7 +118,7 @@ df.head()
 df['description'] = df['slug'].apply(get_description)
 df = df[df['description'].notnull()]
 
-df['url'] = df['slug'].apply(make_subject_url)
+df['syllabusUrl'] = df['slug'].apply(make_subject_url)
 
 df_json = df.to_dict("records")
 
