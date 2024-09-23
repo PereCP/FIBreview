@@ -5,7 +5,6 @@ import {
   StarIcon,
 } from "@heroicons/react/outline";
 import { PlusIcon } from "@heroicons/react/solid";
-import classNames from "classnames";
 import { ObjectId } from "mongodb";
 import type { GetStaticPaths, GetStaticProps } from "next";
 import Head from "next/head";
@@ -109,14 +108,12 @@ export const getStaticProps: GetStaticProps<
 
 export default function Reviews({
   course: {
-    name,
     slug,
-    reviews,
-    codes,
     creditHours,
     description,
-    textbooks,
-    syllabusUrl,
+    name,
+    url,
+    reviews,
     rating,
     difficulty,
     workload,
@@ -177,14 +174,6 @@ export default function Reviews({
                 </div>
                 <div className="grid grid-cols-3 gap-4 px-6 py-5">
                   <dt className="text-sm font-medium text-gray-500">
-                    Listed As
-                  </dt>
-                  <dd className="col-span-2 mt-0 text-sm text-gray-900">
-                    {formatList(codes)}
-                  </dd>
-                </div>
-                <div className="grid grid-cols-3 gap-4 px-6 py-5">
-                  <dt className="text-sm font-medium text-gray-500">
                     Credit Hours
                   </dt>
                   <dd className="col-span-2 mt-0 text-sm text-gray-900">
@@ -212,9 +201,9 @@ export default function Reviews({
                     Syllabus
                   </dt>
                   <dd className="col-span-2 mt-0 text-sm text-gray-900">
-                    {syllabusUrl ? (
+                    {url ? (
                       <a
-                        href={syllabusUrl}
+                        href={url}
                         target="_blank"
                         rel="noreferrer"
                         className="font-medium text-indigo-600 hover:text-indigo-500"
@@ -223,39 +212,6 @@ export default function Reviews({
                       </a>
                     ) : (
                       "Syllabus not found."
-                    )}
-                  </dd>
-                </div>
-                <div className="grid grid-cols-3 gap-4 px-6 py-5">
-                  <dt className="text-sm font-medium text-gray-500">
-                    Textbooks
-                  </dt>
-                  <dd
-                    className={classNames("mt-0 text-sm text-gray-900", {
-                      "col-span-3": textbooks,
-                      "col-span-2": !textbooks,
-                    })}
-                  >
-                    {textbooks ? (
-                      <ul className="divide-y divide-gray-200 rounded-md border border-gray-200">
-                        {textbooks.map(({ name: textbookName, url }) => (
-                          <li
-                            key={textbookName}
-                            className="flex items-center justify-between py-3 pl-3 pr-4 text-sm"
-                          >
-                            <a
-                              href={url}
-                              target="_blank"
-                              rel="noreferrer"
-                              className="w-0 flex-1 truncate font-medium text-indigo-600 hover:text-indigo-500"
-                            >
-                              {textbookName}
-                            </a>
-                          </li>
-                        ))}
-                      </ul>
-                    ) : (
-                      "No textbooks found."
                     )}
                   </dd>
                 </div>
