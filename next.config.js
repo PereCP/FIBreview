@@ -1,5 +1,14 @@
 /** @type {import('next').NextConfig} */
 module.exports = {
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "dse.upc.edu",
+      },
+    ],
+  },
+
   reactStrictMode: true,
   async redirects() {
     return [

@@ -5,7 +5,6 @@ import {
   StarIcon,
 } from "@heroicons/react/outline";
 import { PlusIcon } from "@heroicons/react/solid";
-import { ObjectId } from "mongodb";
 import type { GetStaticPaths, GetStaticProps } from "next";
 import Head from "next/head";
 import Link from "next/link";
@@ -90,10 +89,7 @@ export const getStaticProps: GetStaticProps<
 
   const reviews = await JSON.parse(
     JSON.stringify(
-      await db
-        .collection("reviews")
-        .find({ courseId: new ObjectId(course._id) })
-        .toArray(),
+      await db.collection("reviews").find({ courseId: course._id }).toArray(),
     ),
   );
 
