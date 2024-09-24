@@ -24,7 +24,7 @@ async function connectToDatabase() {
   }
 
   const client = await MongoClient.connect(uri, {
-    maxIdleTimeMS: 1000,
+    maxIdleTimeMS: 10 * 60 * 1000,
     maxPoolSize: 10,
   });
 
