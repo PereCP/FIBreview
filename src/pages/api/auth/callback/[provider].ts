@@ -19,7 +19,8 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
       }
 
       const jwtToken = await createToken(profile);
-      res.setHeader("Set-Cookie", `jwtToken=${jwtToken}; Path=/;`);
+      const expirationDate = new Date(Date.now() + 400 * 24 * 60 * 60 * 1000); // expire in 400 days ()
+      res.setHeader("Set-Cookie", `jwtToken=${jwtToken}; Path=/; Expires=${expirationDate.toUTCString()};`);
       res.redirect("/");
     },
   )(req, res);
