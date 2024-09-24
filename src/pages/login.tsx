@@ -2,7 +2,7 @@ import Link from "next/link";
 
 export default function LoginPage(): JSX.Element {
   return (
-    <div className="flex items-center justify-center bg-gray-100">
+    <div className="my-10 flex items-center justify-center bg-gray-100">
       <div className="w-full max-w-md rounded-lg bg-white p-10 text-center shadow-lg">
         <h2 className="mb-6 text-2xl font-bold">Sign In</h2>
         <p className="mb-8 text-gray-600">
