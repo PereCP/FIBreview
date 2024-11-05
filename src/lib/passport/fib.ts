@@ -65,8 +65,7 @@ async function getFibUserHash(accessToken: string): Promise<string> {
 
   const { username } = (await response.json()) as userFibApi;
 
-  // IMPROVEMENT: Instead of only hashing the username, we could encrypt it for extra security.
-  return sha512(username);
+  return sha512(username + (process.env.USERNAME_HASH_SALT as string));
 }
 
 export default strategy;
