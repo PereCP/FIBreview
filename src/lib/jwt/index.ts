@@ -118,6 +118,7 @@ async function refreshToken(payload: UserToken): Promise<UserToken> {
     refreshToken: response.data.refresh_token,
     expirationDate,
     usernameHash: payload.usernameHash,
+    isAdmin: payload.isAdmin,
   };
 }
 

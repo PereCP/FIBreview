@@ -4,6 +4,7 @@ import { Strategy as OAuth2Strategy } from "passport-oauth2";
 import { UserToken } from "src/@types";
 
 import { createExpirationDate } from "../jwt";
+import { connectToDatabase } from "../mongodb";
 
 interface userFibApi {
   assignatures: string;
@@ -45,11 +46,18 @@ const strategy = new OAuth2Strategy(
     const usernameHash = await getFibUserHash(accessToken);
     const expirationDate = createExpirationDate(params.expires_in);
 
+    const { db } = await connectToDatabase();
+    const isAdmin =
+      (await db
+        .collection("admins")
+        .findOne({ usernameHash: usernameHash })) !== null;
+
     const user: UserToken = {
       accessToken,
       refreshToken,
       expirationDate,
       usernameHash: usernameHash,
+      isAdmin,
     };
 
     return done(null, user);
