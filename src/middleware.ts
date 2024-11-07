@@ -71,6 +71,7 @@ export const config = {
     "/login",
     "/sign-up",
     "/api/services/:path*",
+    "/api/admin/:path*",
     "/reviews/new",
     "/admin/:path*",
     "/api/reviews",
