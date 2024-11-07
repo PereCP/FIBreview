@@ -2,10 +2,10 @@ import type { GetStaticProps } from "next";
 import Head from "next/head";
 
 import type { Course, Review } from "src/@types";
-import { Review as ReviewComponent } from "src/components/review";
+import { ReviewRevision as ReviewRevisionComponent } from "src/components/reviewRevision";
 import { connectToDatabase } from "src/lib/mongodb";
 
-interface ReviewsPageProps {
+interface ReviewsUnderRevisionPageProps {
   reviews: Array<
     Review & {
       course: Pick<Course, "name" | "slug">;
@@ -13,11 +13,13 @@ interface ReviewsPageProps {
   >;
 }
 
-export const getStaticProps: GetStaticProps<ReviewsPageProps> = async () => {
+export const getStaticProps: GetStaticProps<
+  ReviewsUnderRevisionPageProps
+> = async () => {
   const { db } = await connectToDatabase();
 
   const dbReviews = await db
-    .collection("reviews")
+    .collection("reviewsUnderRevision")
     .find({}, { sort: { created: -1 }, limit: 100 })
     .toArray();
   const dbCourses = await db.collection("courses").find({}).toArray();
@@ -39,20 +41,22 @@ export const getStaticProps: GetStaticProps<ReviewsPageProps> = async () => {
   return { props: { reviews } };
 };
 
-export default function Reviews({ reviews }: ReviewsPageProps): JSX.Element {
+export default function Reviews({
+  reviews,
+}: ReviewsUnderRevisionPageProps): JSX.Element {
   return (
     <>
       <Head>
-        <title>Recent Reviews | FIBReview</title>
+        <title>[Admin] Reviews under revision</title>
       </Head>
       <main className="m-auto max-w-7xl px-5 py-10">
         <h3 className="mb-10 text-center text-3xl font-medium text-gray-900">
-          100 Most Recent Reviews
+          Reviews under revision
         </h3>
         <ul className="space-y-4 divide-gray-200">
           {reviews.map((review) => (
             <li key={review._id}>
-              <ReviewComponent review={review} />
+              <ReviewRevisionComponent review={review} />
             </li>
           ))}
         </ul>
