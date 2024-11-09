@@ -107,7 +107,7 @@ export default async function handler(
 
   const { db } = await connectToDatabase();
   // IMPROVEMENT: Check for errors and return 500 if there are any.
-  await db.collection("reviews").insertOne(requestReview);
+  await db.collection("reviewsUnderRevision").insertOne(requestReview);
 
   res.status(201).json({});
 }

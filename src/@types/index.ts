@@ -38,4 +38,5 @@ export interface UserToken extends JWTPayload {
   refreshToken: string;
   expirationDate: number;
   usernameHash: string;
+  isAdmin: boolean;
 }

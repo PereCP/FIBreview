@@ -27,7 +27,7 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
         redirectUrl = `${pathname}${search}`;
       }
 
-      res.setHeader("Set-Cookie", [
+      let array = [
         serialize("jwtToken", jwtToken, {
           maxAge: 60 * 60 * 24 * 400,
           path: "/",
@@ -36,7 +36,18 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
           maxAge: 0,
           path: "/",
         }),
-      ]);
+      ];
+
+      if ((profile as UserToken).isAdmin) {
+        array.push(
+          serialize("isAdmin", (profile as UserToken).isAdmin.toString(), {
+            maxAge: 60 * 60 * 24 * 400,
+            path: "/",
+          }),
+        );
+      }
+
+      res.setHeader("Set-Cookie", array);
       res.redirect(redirectUrl);
     },
   )(req, res);
