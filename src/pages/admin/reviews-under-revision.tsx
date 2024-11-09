@@ -38,7 +38,7 @@ export const getStaticProps: GetStaticProps<
     };
   });
 
-  return { props: { reviews } };
+  return { props: { reviews }, revalidate: true };
 };
 
 export default function Reviews({
