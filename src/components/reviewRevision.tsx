@@ -1,3 +1,6 @@
+import { useRouter } from "next/router";
+import { toast } from "react-hot-toast";
+
 import type { Course, Review as ReviewType } from "src/@types";
 import { Review as ReviewComponent } from "src/components/review";
 
@@ -8,19 +11,29 @@ interface ReviewProps {
 }
 
 export function ReviewRevision({ review }: ReviewProps): JSX.Element {
+  const router = useRouter();
+
   async function acceptReview() {
     const res = await fetch(`/api/admin/review/accept?id=${review._id}`);
 
+    router.reload();
+
     if (res.ok) {
-      alert("Review accepted");
+      toast.success("Review accepted");
+    } else {
+      toast.error("Failed to accept review");
     }
   }
 
   async function rejectReview() {
     const res = await fetch(`/api/admin/review/reject?id=${review._id}`);
 
+    router.reload();
+
     if (res.ok) {
-      alert("Review rejected");
+      toast.success("Review rejected");
+    } else {
+      toast.error("Failed to reject review");
     }
   }
 

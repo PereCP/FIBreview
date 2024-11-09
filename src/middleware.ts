@@ -49,7 +49,12 @@ export async function middleware(request: NextRequest) {
         return;
       }
     }
-    return NextResponse.redirect(new URL("/", request.nextUrl));
+
+    if (path.includes("/api/")) {
+      return NextResponse.json(new Error("Unauthorized"), { status: 401 });
+    } else {
+      return NextResponse.redirect(new URL("/", request.nextUrl));
+    }
   } else {
     const slug = new RegExp(/\/courses\/(.*)\/reviews/g).exec(path);
 
