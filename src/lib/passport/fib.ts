@@ -25,11 +25,11 @@ export interface FibAuthParams {
   token_type: string;
 }
 
-const FIB_URL = process.env.FIB_URL || "";
+const FIB_URL = "https://" + process.env.FIB_URL || "";
 const VERCEL_URL =
   process.env.VERCEL_ENV === "production"
-    ? process.env.VERCEL_PROJECT_PRODUCTION_URL || ""
-    : process.env.VERCEL_BRANCH_URL || "";
+    ? "https://" + process.env.VERCEL_PROJECT_PRODUCTION_URL || ""
+    : "http://" + process.env.VERCEL_BRANCH_URL || "";
 
 const TOKEN_URL = `${FIB_URL}/${process.env.FIB_TOKEN_URL || ""}`;
 const AUTH_URL = `${FIB_URL}/${process.env.FIB_AUTH_URL || ""}`;
