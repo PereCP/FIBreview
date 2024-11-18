@@ -12,10 +12,12 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
     // eslint-disable-next-line no-unused-vars
     async (err: any, profile: UserToken, _info: any) => {
       if (err) {
+        console.log("Error while authenticating", err);
         return res.redirect("/login");
       }
 
       if (!profile) {
+        console.log("No profile found");
         return res.redirect("/login");
       }
 
