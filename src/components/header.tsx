@@ -68,6 +68,7 @@ export function Header(): JSX.Element {
   const router = useRouter();
   const [newReviewURL, setNewReviewURL] = useState<URL>();
   const [copiedContactInfo, setCopiedContactInfo] = useState<string>("");
+  const [isAdmin, setAdmin] = useState<boolean>(false);
 
   useEffect(() => {
     const timeoutId = setTimeout(() => {
@@ -89,6 +90,14 @@ export function Header(): JSX.Element {
 
     setNewReviewURL(url);
   }, [router]);
+
+  useEffect(() => {
+    const admin = document.cookie.includes("isAdmin");
+
+    if (admin) {
+      setAdmin(true);
+    }
+  }, []);
 
   return (
     <Disclosure as="nav" className="grow-0 bg-white shadow">
@@ -205,7 +214,17 @@ export function Header(): JSX.Element {
                 </div>
               </div>
               <div className="flex items-center">
-                <div className="flex-shrink-0">
+                {isAdmin && (
+                  <div className="flex-shrink-0 md:ml-4">
+                    <Link
+                      href={"/admin/reviews-under-revision"}
+                      className="relative inline-flex items-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                    >
+                      <span>Reviews revision</span>
+                    </Link>
+                  </div>
+                )}
+                <div className="ml-4 flex-shrink-0 md:ml-4">
                   <Link
                     href={newReviewURL ?? "/"}
                     className="relative inline-flex items-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"

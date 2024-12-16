@@ -466,7 +466,8 @@ export default function NewReviewForm({
                       <div className="mt-2">
                         <p className="text-sm text-gray-500">
                           Thanks! It&apos;s so awesome you took the time to
-                          write a review.
+                          write a review. The review will be visible to others
+                          once it&apos;s been approved by our team.
                         </p>
                       </div>
                     </div>
@@ -478,7 +479,7 @@ export default function NewReviewForm({
                       }/reviews`}
                       className="inline-flex w-full justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 sm:text-sm"
                     >
-                      View my review
+                      Return to course
                     </Link>
                   </div>
                 </Dialog.Panel>

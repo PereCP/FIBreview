@@ -21,6 +21,7 @@ async function verifyAndUpdateToken(
   if (!tokenPayload || !validToken) {
     res = NextResponse.redirect(new URL("/login", req.nextUrl));
     res.cookies.delete("jwtToken");
+    res.cookies.delete("isAdmin");
     return { response: res, isAuthenticated: false };
   }
 
@@ -33,6 +34,7 @@ async function verifyAndUpdateToken(
   } catch (error: any) {
     res = NextResponse.redirect(new URL("/login", req.nextUrl));
     res.cookies.delete("jwtToken");
+    res.cookies.delete("isAdmin");
     return { response: res, isAuthenticated: false };
   }
 
@@ -119,6 +121,7 @@ async function refreshToken(payload: UserToken): Promise<UserToken> {
     refreshToken: response.data.refresh_token,
     expirationDate,
     usernameHash: payload.usernameHash,
+    isAdmin: payload.isAdmin,
   };
 }
 
